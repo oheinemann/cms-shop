@@ -2,7 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$envFile = '/var/www/html/app/etc/env.php';
+$envFile = getenv('PATH_SHOP') . '/app/etc/env.php';
 
 // Include the existing env.php file (from the production server)
 $config = include $envFile;
@@ -40,7 +40,7 @@ if (isset($config['db']['connection']['default']['username'])) {
     $config['db']['connection']['default']['username'] = 'db';
 }
 if (isset($config['db']['connection']['default']['dbname'])) {
-    $config['db']['connection']['default']['dbname'] = 'db';
+    $config['db']['connection']['default']['dbname'] = getenv('DATABASE_SHOP');
 }
 if (isset($config['db']['connection']['default']['password'])) {
     $config['db']['connection']['default']['password'] = 'db';
@@ -55,7 +55,7 @@ if (isset($config['db']['connection']['indexer']['username'])) {
     $config['db']['connection']['indexer']['username'] = 'db';
 }
 if (isset($config['db']['connection']['indexer']['dbname'])) {
-    $config['db']['connection']['indexer']['dbname'] = 'db';
+    $config['db']['connection']['indexer']['dbname'] = getenv('DATABASE_SHOP');
 }
 if (isset($config['db']['connection']['indexer']['password'])) {
     $config['db']['connection']['indexer']['password'] = 'db';
@@ -77,10 +77,10 @@ if (isset($config['system']['default']['catalog']['search']['opensearch_server_h
 
 // Change base url to use DDEV project url
 if (isset($config['system']['default']['web']['unsecure']['base_url'])) {
-    $config['system']['default']['web']['unsecure']['base_url'] = 'http://' . getenv('DDEV_SITENAME') . '.' . getenv('DDEV_TLD') . '/';
+    $config['system']['default']['web']['unsecure']['base_url'] = 'http://' . getenv('DOMAIN_SHOP') . '/';
 }
 if (isset($config['system']['default']['web']['secure']['base_url'])) {
-    $config['system']['default']['web']['secure']['base_url'] = 'https://' . getenv('DDEV_SITENAME') . '.' . getenv('DDEV_TLD') . '/';
+    $config['system']['default']['web']['secure']['base_url'] = 'https://' . getenv('DOMAIN_SHOP') . '/';
 }
 
 

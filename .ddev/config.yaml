@@ -1,23 +1,49 @@
-name: magento2
-type: magento2
-docroot: pub
+name: cms-shop
+type: php
+docroot: shop/pub
 php_version: "8.3"
 webserver_type: nginx-fpm
 xdebug_enabled: false
-additional_hostnames: []
+additional_hostnames:
+    - shop.cms-shop
 additional_fqdns: []
 database:
     type: mariadb
     version: "10.6"
 upload_dirs:
-    - media
+    - shop/media
 use_dns_when_possible: true
 composer_version: "2"
 disable_settings_management: true
 corepack_enable: false
-web_environment: []
+web_environment:
+    - DOMAIN_CMS=${DDEV_SITENAME}.${DDEV_TLD}
+    - PATH_CMS=/var/www/html/cms
+    - DATABASE_CMS=db
+    - TYPO3_CONTEXT=Development/DDEV
+
+    - DOMAIN_SHOP=shop.${DDEV_SITENAME}.${DDEV_TLD}
+    - PATH_SHOP=/var/www/html/shop
+    - DATABASE_SHOP=db_shop
+    - MAGENTO_DC_INDEXER__USE_APPLICATION_LOCK=true
+    - MAGENTO_INDEXER_BATCH_SIZE__CATALOGINVENTORY_STOCK__SIMPLE=200
+    - MAGENTO_INDEXER_BATCH_SIZE__CATALOG_CATEGORY_PRODUCT=666
+    - MAGENTO_INDEXER_BATCH_SIZE__CATALOGSEARCH_FULLTEXT__PARTIAL_REINDEX=100
+    - MAGENTO_INDEXER_BATCH_SIZE__CATALOGSEARCH_FULLTEXT__MYSQL_GET=500
+    - MAGENTO_INDEXER_BATCH_SIZE__CATALOGSEARCH_FULLTEXT__ELASTIC_SAVE=500
+    - MAGENTO_INDEXER_BATCH_SIZE__CATALOG_PRODUCT_PRICE__SIMPLE=200
+    - MAGENTO_INDEXER_BATCH_SIZE__CATALOG_PRODUCT_PRICE__DEFAULT=500
+    - MAGENTO_INDEXER_BATCH_SIZE__CATALOG_PRODUCT_PRICE__CONFIGURABLE=666
+    - MAGENTO_INDEXER_BATCH_SIZE__CATALOGPERMISSIONS_CATEGORY=999
+    - MAGENTO_INDEXER_BATCH_SIZE__INVENTORY__SIMPLE=210
+    - MAGENTO_INDEXER_BATCH_SIZE__INVENTORY__DEFAULT=510
+    - MAGENTO_INDEXER_BATCH_SIZE__INVENTORY__CONFIGURABLE=616
 timezone: Europe/Berlin
 hooks:
     post-start:
+        # Create another database for MAGENTO2
+        - exec: mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS ${DATABASE_SHOP}; GRANT ALL ON ${DATABASE_SHOP}.* TO 'db'@'%';"
+          service: db
+
         # Install MAGENTO2 packages
-        - composer: install
+        - composer: install -d $PATH_SHOP

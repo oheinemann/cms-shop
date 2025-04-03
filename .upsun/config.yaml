@@ -1,5 +1,5 @@
 applications:
-    app:
+    shop:
         # The runtime the application uses.
         type: php:8.3
         # Specify additional PHP extensions that should be loaded.
@@ -152,7 +152,7 @@ applications:
                         ^/static/version\d+/(?<resource>.*)$:
                             passthru: "/static/$resource"
         source:
-            root: /
+            root: /shop/
 services:
     db:
         type: mariadb:10.6

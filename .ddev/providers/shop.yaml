@@ -32,31 +32,45 @@
 auth_command:
   command: |
     set -eu -o pipefail
-    export PLATFORM_PROJECT="${PLATFORM_PROJECT:-${UPSUN_PROJECT:-}}"
-    export PLATFORM_ENVIRONMENT="${PLATFORM_ENVIRONMENT:-${UPSUN_ENVIRONMENT:-}}"
+    export UPSUN_PROJECT="${PLATFORM_PROJECT:-${UPSUN_PROJECT:-}}"
+    export UPSUN_ENVIRONMENT="${PLATFORM_ENVIRONMENT:-${UPSUN_ENVIRONMENT:-}}"
     if [ -z "${UPSUN_CLI_TOKEN:-}" ]; then echo "Please make sure you have set UPSUN_CLI_TOKEN." && exit 1; fi
-    if [ -z "${PLATFORM_PROJECT:-}" ]; then echo "Please make sure you have set PLATFORM_PROJECT." && exit 1; fi
-    if [ -z "${PLATFORM_ENVIRONMENT:-}" ]; then echo "Please make sure you have set PLATFORM_ENVIRONMENT." && exit 1; fi
+    if [ -z "${UPSUN_PROJECT:-}" ]; then echo "Please make sure you have set UPSUN_PROJECT." && exit 1; fi
+    if [ -z "${UPSUN_ENVIRONMENT:-}" ]; then echo "Please make sure you have set UPSUN_ENVIRONMENT." && exit 1; fi
+
+db_import_command:
+  command: |
+    set -eu -o pipefail
+    export DATABASE_SHOP="${DATABASE_SHOP:-}"
+    echo $PATH
+    ddev --version
+    set -x
+    gzip -dc ~/Dropbox/db.sql.gz | ddev mysql $DATABASE_SHOP
+  service: host
 
 db_pull_command:
   command: |
     # set -x   # You can enable bash debugging output by uncommenting
     set -eu -o pipefail
-    export PLATFORM_PROJECT="${PLATFORM_PROJECT:-${UPSUN_PROJECT:-}}"
-    export PLATFORM_ENVIRONMENT="${PLATFORM_ENVIRONMENT:-${UPSUN_ENVIRONMENT:-}}"
+    export UPSUN_PROJECT="${PLATFORM_PROJECT:-${UPSUN_PROJECT:-}}"
+    export UPSUN_ENVIRONMENT="${PLATFORM_ENVIRONMENT:-${UPSUN_ENVIRONMENT:-}}"
     export UPSUN_CLI_NO_INTERACTION=1
-    upsun db:dump --yes --gzip --file=/var/www/html/.ddev/.downloads/db.sql.gz --project="${PLATFORM_PROJECT}" --environment="${PLATFORM_ENVIRONMENT}" --relationship=database
+    export DATABASE_SHOP="${DATABASE_SHOP:-}"
+    if [ -z "${DATABASE_SHOP:-}" ]; then echo "Please make sure you have set DATABASE_SHOP." && exit 1; fi
+    upsun db:dump --yes --gzip --file=/var/www/html/.ddev/.downloads/${DATABASE_SHOP}.sql.gz --project="${UPSUN_PROJECT}" --environment="${UPSUN_ENVIRONMENT}" --relationship=database --app=shop
 
 files_import_command:
   command: |
     # set -x   # You can enable bash debugging output by uncommenting
     set -eu -o pipefail
-    export PLATFORM_PROJECT="${PLATFORM_PROJECT:-${UPSUN_PROJECT:-}}"
-    export PLATFORM_ENVIRONMENT="${PLATFORM_ENVIRONMENT:-${UPSUN_ENVIRONMENT:-}}"
+    export UPSUN_PROJECT="${PLATFORM_PROJECT:-${UPSUN_PROJECT:-}}"
+    export UPSUN_ENVIRONMENT="${PLATFORM_ENVIRONMENT:-${UPSUN_ENVIRONMENT:-}}"
     export UPSUN_CLI_NO_INTERACTION=1
-    rm -Rf /var/www/html/pub/static/{adminhtml,base,deployed_version.txt,frontend}
-    upsun mount:download --all --yes --quiet --project="${PLATFORM_PROJECT}" --environment="${PLATFORM_ENVIRONMENT}" --target=/var/www/html
-    rm -Rf /var/www/html/pub/static/{adminhtml,base,deployed_version.txt,frontend}
+    export PATH_SHOP="${PATH_SHOP:-}"
+    if [ -z "${PATH_SHOP:-}" ]; then echo "Please make sure you have set PATH_SHOP." && exit 1; fi
+    rm -Rf ${PATH_SHOP}/pub/static/{adminhtml,base,deployed_version.txt,frontend}
+    upsun mount:download --all --yes --quiet --project="${UPSUN_PROJECT}" --environment="${UPSUN_ENVIRONMENT}" --target=${PATH_SHOP} --app=shop
+    rm -Rf ${PATH_SHOP}/pub/static/{adminhtml,base,deployed_version.txt,frontend}
     php /var/www/html/.ddev/update-env.php
     magento setup:upgrade
 
@@ -65,11 +79,11 @@ db_push_command:
   command: |
     # set -x   # You can enable bash debugging output by uncommenting
     set -eu -o pipefail
-    export PLATFORM_PROJECT="${PLATFORM_PROJECT:-${UPSUN_PROJECT:-}}"
-    export PLATFORM_ENVIRONMENT="${PLATFORM_ENVIRONMENT:-${UPSUN_ENVIRONMENT:-}}"
+    export UPSUN_PROJECT="${PLATFORM_PROJECT:-${UPSUN_PROJECT:-}}"
+    export UPSUN_ENVIRONMENT="${PLATFORM_ENVIRONMENT:-${UPSUN_ENVIRONMENT:-}}"
     export UPSUN_CLI_NO_INTERACTION=1
     pushd /var/www/html/.ddev/.downloads >/dev/null
-    gzip -dc db.sql.gz | upsun db:sql --project="${PLATFORM_PROJECT}" --environment="${PLATFORM_ENVIRONMENT}" --relationship=database
+    gzip -dc ${DATABASE_SHOP}.sql.gz | upsun db:sql --project="${UPSUN_PROJECT}" --environment="${UPSUN_ENVIRONMENT}" --relationship=database --app=shop
 
 # push is a dangerous command. If not absolutely needed it's better to delete these lines.
 # TODO: This is a naive, Drupal-centric push, which needs adjustment for the mount to be pushed.
@@ -77,7 +91,7 @@ files_push_command:
   command: |
     # set -x   # You can enable bash debugging output by uncommenting
     set -eu -o pipefail
-    export PLATFORM_PROJECT="${PLATFORM_PROJECT:-${UPSUN_PROJECT:-}}"
-    export PLATFORM_ENVIRONMENT="${PLATFORM_ENVIRONMENT:-${UPSUN_ENVIRONMENT:-}}"
+    export UPSUN_PROJECT="${PLATFORM_PROJECT:-${UPSUN_PROJECT:-}}"
+    export UPSUN_ENVIRONMENT="${PLATFORM_ENVIRONMENT:-${UPSUN_ENVIRONMENT:-}}"
     export UPSUN_CLI_NO_INTERACTION=1
-    upsun mount:upload --yes --quiet --project="${PLATFORM_PROJECT}" --environment="${PLATFORM_ENVIRONMENT}" --source="${DDEV_FILES_DIR}" --mount=web/sites/default/files
+    upsun mount:upload --yes --quiet --project="${UPSUN_PROJECT}" --environment="${UPSUN_ENVIRONMENT}" --source="${DDEV_FILES_DIR}" --app=shop --mount=web/sites/default/files
