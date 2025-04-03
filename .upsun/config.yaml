@@ -9,9 +9,9 @@ applications:
                 - sodium
                 - redis
                 - blackfire
-        
+
         container_profile: BALANCED
-        
+
         variables:
             env:
                 NVM_VERSION: master
@@ -43,10 +43,10 @@ applications:
         # to the application in the PLATFORM_RELATIONSHIPS variable. The right-hand
         # side is in the form `<service name>:<endpoint name>`.
         relationships:
-            database: 
+            database:
               service: db
               endpoint: write
-            database-slave: 
+            database-slave:
               service: db
               endpoint: read
             redis:
@@ -171,17 +171,17 @@ services:
               default_schema: main
               privileges:
                 main: ro
-    
+
     cache:
         type: redis:7.2
         configuration:
             maxmemory_policy: allkeys-lru
-    
+
     session:
         type: redis-persistent:7.2
         configuration:
             maxmemory_policy: allkeys-lru
-    
+
     indexer:
         type: opensearch:2
         configuration:
