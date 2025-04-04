@@ -1,4 +1,4 @@
-base: "https://dixi-ost.de/"
+base: "https://main-bvxea6i-z4qlx4zysnmny.fr-3.platformsh.site/"
 baseVariants:
   - base: "%env(DOMAIN_CMS)%"
     condition: 'applicationContext == "Production/Platformsh"'
