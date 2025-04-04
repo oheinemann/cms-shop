@@ -1,6 +1,6 @@
 base: "https://dixi-ost.de/"
 baseVariants:
-  - base: "%env(PLATFORM_ROUTES_CMS)%"
+  - base: "%env(DOMAIN_CMS)%"
     condition: 'applicationContext == "Production/Platformsh"'
   - base: "https://%env(DOMAIN_CMS)%"
     condition: 'applicationContext == "Development/DDEV"'
