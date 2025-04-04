@@ -4,6 +4,8 @@ else
     export TYPO3_CONTEXT='Production/Platformsh'
 fi
 
+export DOMAIN_CMS="$(echo $PLATFORM_ROUTES | base64 --decode | jq -r 'to_entries[] | select (.value.id == "cms") | .key')"
+
 export TYPO3_INSTALL_DB_DRIVER=mysqli
 export TYPO3_INSTALL_DB_USERNAME=${DATABASE_USERNAME}
 export TYPO3_INSTALL_DB_PORT=${DATABASE_TYPE}
@@ -11,9 +13,7 @@ export TYPO3_INSTALL_DB_HOST=${DATABASE_HOST}
 export TYPO3_INSTALL_DB_DBNAME=${DATABASE_PATH}
 export TYPO3_INSTALL_SETUP_ADMIN_EMAIL=oliver@aemka.de
 export TYPO3_INSTALL_SETUP_ADMIN_USERNAME=oliver@aemka.de
-export TYPO3_INSTALL_SETUP_CREATE_SITE="$(echo $PLATFORM_ROUTES | base64 --decode | jq -r 'to_entries[] | select (.value.id == "cms") | .key')"
+export TYPO3_INSTALL_SETUP_CREATE_SITE=${DOMAIN_CMS}
 export TYPO3_INSTALL_SITE_NAME="Toi Toi Dixi"
 export TYPO3_INSTALL_WEB_SERVER_CONFIG=none
 export TYPO3_INSTALL_SITE_SETUP_TYPE=site
-
-export DOMAIN_CMS="$(echo $PLATFORM_ROUTES | base64 --decode | jq -r 'to_entries[] | select (.value.id == "cms") | .key')"

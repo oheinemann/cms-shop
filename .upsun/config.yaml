@@ -297,20 +297,21 @@ services:
             optimizer_switch: "rowid_filter=off"
             optimizer_use_condition_selectivity: 1
           schemas:
-            - main
+            - cms
+            - shop
           endpoints:
             cms:
-              default_schema: main
+              default_schema: cms
               privileges:
-                main: admin
+                cms: admin
             write:
-              default_schema: main
+              default_schema: shop
               privileges:
-                main: admin
+                shop: admin
             read:
-              default_schema: main
+              default_schema: shop
               privileges:
-                main: ro
+                shop: ro
 
     cache:
         type: redis:7.2
