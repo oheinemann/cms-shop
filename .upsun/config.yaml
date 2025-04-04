@@ -18,9 +18,9 @@ applications:
                 service: cache
                 endpoint: redis
             redis-session: session:redis
-        shop:
-            service: "shop"
-            endpoint: "http"
+#        shop:
+#            service: "shop"
+#            endpoint: "http"
 
         mounts:
             "/public/typo3temp":
