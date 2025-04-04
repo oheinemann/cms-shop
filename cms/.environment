@@ -11,7 +11,7 @@ export TYPO3_INSTALL_DB_HOST=${DATABASE_HOST}
 export TYPO3_INSTALL_DB_DBNAME=${DATABASE_PATH}
 export TYPO3_INSTALL_SETUP_ADMIN_EMAIL=oliver@aemka.de
 export TYPO3_INSTALL_SETUP_ADMIN_USERNAME=oliver@aemka.de
-export TYPO3_INSTALL_SETUP_CREATE_SITE="http://dixi-ost.de/"
+export TYPO3_INSTALL_SETUP_CREATE_SITE=$(echo $PLATFORM_ROUTES | base64 --decode | jq -r 'to_entries[] | select (.value.id == "cms") | .key')
 export TYPO3_INSTALL_SITE_NAME="Toi Toi Dixi"
 export TYPO3_INSTALL_WEB_SERVER_CONFIG=none
 export TYPO3_INSTALL_SITE_SETUP_TYPE=site

@@ -18,9 +18,9 @@ applications:
                 service: cache
                 endpoint: redis
             redis-session: session:redis
-        #      shop:
-        #        service: "shop"
-        #        endpoint: "http"
+        shop:
+            service: "shop"
+            endpoint: "http"
 
         mounts:
             "/public/typo3temp":
@@ -331,16 +331,18 @@ services:
     queue:
         type: rabbitmq:3.13
 routes:
-    https://{default}/:
-        type: upstream
-        upstream: cms:http
-
     https://shop.{default}/:
         type: upstream
         upstream: shop:http
+        id: shop
     https://shop.{default}/static/:
         type: upstream
         upstream: shop:http
+        id: shop_static
         cache:
             enabled: true
             cookies: []
+    https://{default}/:
+        type: upstream
+        upstream: cms:http
+        id: cms

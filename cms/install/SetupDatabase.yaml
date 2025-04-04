@@ -6,13 +6,13 @@ databaseData:
             description: 'Username of to be created administrative user account'
             option: '--admin-user-name'
             type: string
-            value: '%env(TYPO3_INSTALL_ADMIN_USER)%'
+            value: '%env(TYPO3_INSTALL_SETUP_ADMIN_USERNAME)%'
 
         adminPassword:
             description: 'Password of to be created administrative user account'
             option: '--admin-password'
             type: hidden
-            value: '%env(TYPO3_INSTALL_ADMIN_PASSWORD)%'
+            value: '%env(TYPO3_INSTALL_SETUP_ADMIN_USERNAME)%'
 
         siteName:
             description: 'Name of the TYPO3 site'
