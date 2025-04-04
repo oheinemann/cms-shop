@@ -1,4 +1,140 @@
 applications:
+    # TYPO3 CMS Configuration
+    cms:
+        type: php:8.3
+
+        source:
+            root: cms
+
+        runtime:
+            extensions:
+                - redis
+
+        relationships:
+            database:
+                service: db
+                endpoint: cms
+            redis:
+                service: cache
+                endpoint: redis
+            redis-session: session:redis
+        #      shop:
+        #        service: "shop"
+        #        endpoint: "http"
+
+        mounts:
+            "/public/typo3temp":
+                source: local
+                source_path: "typo3temp"
+            "/public/fileadmin":
+                source: local
+                source_path: "fileadmin"
+            "/var":
+                source: local
+                source_path: "var"
+
+        web:
+            locations:
+                "/":
+                    root: "public"
+                    passthru: "/index.php"
+                    index:
+                        - "index.php"
+                    allow: false
+                    expires: 1y
+                    rules:
+                        '^/(?<directory>.*)/(?<name>[^/]+)\.(jpe?g|png|gif|webp)$':
+                            allow: true
+                        '\.ico$':
+                            expires: 1w
+                            allow: true
+                        '\.(svgz?|css|js|map|bmp|eot|woff2?|otf|ttf)$':
+                            allow: true
+                        '^/robots\.txt$':
+                            allow: true
+                        '^/sitemap\.xml$':
+                            expires: 0s
+                            allow: true
+                        '\.(xml|json)$':
+                            expires: 0s
+                            allow: true
+                        '\.(atom|rdf|rss)$':
+                            expires: 1h
+                            allow: true
+                        '\.html$':
+                            expires: 0s
+                "/fileadmin":
+                    root: "public/fileadmin"
+                    # Do not execute PHP scripts from the writeable mount.
+                    scripts: false
+                    allow: true
+                    passthru: "/index.php"
+                    headers:
+                        Content-Security-Policy: "default-src 'self'; script-src 'none'; style-src 'none'; object-src 'none';"
+                "/typo3temp/assets":
+                    root: "public/typo3temp/assets"
+                    scripts: false
+                    allow: true
+                    passthru: "/index.php"
+                    rules:
+                        '\.js\.gz$':
+                            headers:
+                                Content-Type: text/javascript
+                                Content-Encoding: gzip
+                        '\.js\.gzip$':
+                            headers:
+                                Content-Type: text/javascript
+                                Content-Encoding: gzip
+                        '\.css\.gz$':
+                            headers:
+                                Content-Type: text/css
+                                Content-Encoding: gzip
+                        '\.css\.gzip$':
+                            headers:
+                                Content-Type: text/css
+                                Content-Encoding: gzip
+                "/config/system/settings.php":
+                    allow: false
+                "/config/system/additional.php":
+                    allow: false
+                "/typo3/":
+                    root: "public/typo3"
+                    passthru: "/typo3/index.php"
+                    allow: true
+                    scripts: true
+
+        variables:
+            php:
+                max_execution_time: "240"
+                memory_limit: "512M"
+                always_populate_raw_post_data: "-1"
+                max_input_vars: "1500"
+                post_max_size: "128M"
+                upload_max_filesize: "128M"
+                serialize_precision: "-1"
+                session.cookie_secure: "on"
+                session.cookie_httponly: "on"
+            env:
+                TYPO3_ENABLE_INSTALL_TOOL: "true"
+
+        hooks:
+            build: |
+                # Exit hook immediately if a command exits with a non-zero status.
+                set -e
+
+                bash ./.upsun-scripts/build.sh
+            deploy: |
+                # Exit hook immediately if a command exits with a non-zero status.
+                set -e
+
+                bash ./.upsun-scripts/deploy.sh
+
+        crons:
+            typo3:
+                spec: "*/1 * * * *"
+                cmd: "vendor/bin/typo3 scheduler:run"
+
+    # Magento2 Shop Configuration
     shop:
         # The runtime the application uses.
         type: php:8.3
@@ -163,6 +299,10 @@ services:
           schemas:
             - main
           endpoints:
+            cms:
+              default_schema: main
+              privileges:
+                main: admin
             write:
               default_schema: main
               privileges:
@@ -193,17 +333,12 @@ services:
 routes:
     https://{default}/:
         type: upstream
-        upstream: shop:http
-    https://{default}/static/:
+        upstream: cms:http
+
+    https://shop.{default}/:
         type: upstream
         upstream: shop:http
-        cache:
-            enabled: true
-            cookies: []
-    https://{all}/:
-        type: upstream
-        upstream: shop:http
-    https://{all}/static/:
+    https://shop.{default}/static/:
         type: upstream
         upstream: shop:http
         cache:
