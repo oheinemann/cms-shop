@@ -330,17 +330,21 @@ services:
     queue:
         type: rabbitmq:3.13
 routes:
-    https://{default}/:
+    "https://{default}/":
         type: upstream
         upstream: cms:http
         id: cms
-    https://shop.{default}/:
+    "https://www.{default}/":
+        type: redirect
+        to: "https://{default}/"
+
+    "https://shop.{default}/":
         type: upstream
-        upstream: shop:http
+        upstream: "shop:http"
         id: shop
-    https://shop.{default}/static/:
+    "https://shop.{default}/static/":
         type: upstream
-        upstream: shop:http
+        upstream: "shop:http"
         id: shop_static
         cache:
             enabled: true
