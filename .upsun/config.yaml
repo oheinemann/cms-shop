@@ -193,19 +193,19 @@ services:
 routes:
     https://{default}/:
         type: upstream
-        upstream: app:http
+        upstream: shop:http
     https://{default}/static/:
         type: upstream
-        upstream: app:http
+        upstream: shop:http
         cache:
             enabled: true
             cookies: []
     https://{all}/:
         type: upstream
-        upstream: app:http
+        upstream: shop:http
     https://{all}/static/:
         type: upstream
-        upstream: app:http
+        upstream: shop:http
         cache:
             enabled: true
             cookies: []
