@@ -119,15 +119,13 @@ applications:
 
         hooks:
             build: |
-                # Exit hook immediately if a command exits with a non-zero status.
-                set -e
-
-                bash ./.upsun-scripts/build.sh
+              # Exit hook immediately if a command exits with a non-zero status.
+              set -e
+              bash ./.upsun-scripts/build.sh
             deploy: |
-                # Exit hook immediately if a command exits with a non-zero status.
-                set -e
-
-                bash ./.upsun-scripts/deploy.sh
+              # Exit hook immediately if a command exits with a non-zero status.
+              set -e
+              bash ./.upsun-scripts/deploy.sh
 
         crons:
             typo3:
@@ -217,28 +215,28 @@ applications:
         # The hooks executed at various points in the lifecycle of the application.
         hooks:
             build: |
-                set -e
-                #prep node as per https://experienceleague.adobe.com/en/docs/commerce-knowledge-base/kb/how-to/configure-npm-to-be-able-to-use-pwa-studio
-                unset NPM_CONFIG_PREFIX
-                export NVM_DIR="$PLATFORM_APP_DIR/.nvm"
-                # install.sh will automatically install NodeJS based on the presence of $NODE_VERSION
-                curl -f -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
-                [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-                npm -v
-                nvm install $NODE_VERSION
-                echo 'unset NPM_CONFIG_PREFIX' >> .environment
-                echo 'export NO_UPDATE_NOTIFIER=1' >> .environment
-                echo 'export NVM_DIR="$PLATFORM_APP_DIR/.nvm"' >> .environment
-                echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"' >> .environment
-                #install php application
-                composer install --no-dev --no-interaction
-                php ./vendor/bin/ece-tools run scenario/build/generate.xml
-                php ./vendor/bin/ece-tools run scenario/build/transfer.xml
-                sed -i 's/_process>1<\/use_/_process>0<\/use_/g' ${PLATFORM_APP_DIR}/vendor/magento/*/etc/cron_groups.xml
+              set -e
+              #prep node as per https://experienceleague.adobe.com/en/docs/commerce-knowledge-base/kb/how-to/configure-npm-to-be-able-to-use-pwa-studio
+              unset NPM_CONFIG_PREFIX
+              export NVM_DIR="$PLATFORM_APP_DIR/.nvm"
+              # install.sh will automatically install NodeJS based on the presence of $NODE_VERSION
+              curl -f -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
+              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+              npm -v
+              nvm install $NODE_VERSION
+              echo 'unset NPM_CONFIG_PREFIX' >> .environment
+              echo 'export NO_UPDATE_NOTIFIER=1' >> .environment
+              echo 'export NVM_DIR="$PLATFORM_APP_DIR/.nvm"' >> .environment
+              echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"' >> .environment
+              # install php application
+              composer install --no-dev --no-interaction
+              php ./vendor/bin/ece-tools run scenario/build/generate.xml -vvv
+              php ./vendor/bin/ece-tools run scenario/build/transfer.xml -vvv
+              sed -i 's/_process>1<\/use_/_process>0<\/use_/g' ${PLATFORM_APP_DIR}/vendor/magento/*/etc/cron_groups.xml
             deploy: |
-                php ./vendor/bin/ece-tools run scenario/deploy.xml
+              php ./vendor/bin/ece-tools run scenario/deploy.xml
             post_deploy: |
-                php ./vendor/bin/ece-tools run scenario/post-deploy.xml
+              php ./vendor/bin/ece-tools run scenario/post-deploy.xml
         # The configuration of scheduled execution.
         crons:
             magento:
@@ -265,13 +263,13 @@ applications:
                     allow: false
                     rules:
                         ? \.(css|js|map|hbs|gif|jpe?g|png|tiff|wbmp|ico|jng|bmp|svgz|midi?|mp?ga|mp2|mp3|m4a|ra|weba|3gpp?|mp4|mpe?g|mpe|ogv|mov|webm|flv|mng|asx|asf|wmv|avi|ogx|swf|jar|ttf|eot|woff|otf|html?)$
-                        : allow: true
+                        :   allow: true
                         ^/sitemap(.*)\.xml$:
                             passthru: "/media/sitemap$1.xml"
-                        ? ^/.well-known/apple-developer-merchantid-domain-association.xml$
-                        : passthru: "/media/apple-developer-merchantid-domain-association.xml"
-                        ? ^/.well-known/apple-developer-merchantid-domain-association.txt$
-                        : passthru: "/media/apple-developer-merchantid-domain-association.txt"
+                        ^/.well-known/apple-developer-merchantid-domain-association.xml$:
+                            passthru: "/media/apple-developer-merchantid-domain-association.xml"
+                        ^/.well-known/apple-developer-merchantid-domain-association.txt$:
+                            passthru: "/media/apple-developer-merchantid-domain-association.txt"
                 "/media":
                     root: "pub/media"
                     allow: true
@@ -297,13 +295,13 @@ services:
                 optimizer_switch: "rowid_filter=off"
                 optimizer_use_condition_selectivity: 1
             schemas:
-                - cms
+                - main
                 - shop
             endpoints:
                 cms:
-                    default_schema: cms
+                    default_schema: main
                     privileges:
-                        cms: admin
+                        main: admin
                 write:
                     default_schema: shop
                     privileges:
@@ -332,6 +330,10 @@ services:
     queue:
         type: rabbitmq:3.13
 routes:
+    https://{default}/:
+        type: upstream
+        upstream: cms:http
+        id: cms
     https://shop.{default}/:
         type: upstream
         upstream: shop:http
@@ -343,7 +345,3 @@ routes:
         cache:
             enabled: true
             cookies: []
-    https://{default}/:
-        type: upstream
-        upstream: cms:http
-        id: cms
