@@ -21,6 +21,16 @@ if [[ ! -f "${pshInstalled}" ]]; then
     done
   fi
 
+  echo "Username: ${TYPO3_INSTALL_SETUP_ADMIN_USERNAME}"
+  echo "Password: ${TYPO3_INSTALL_SETUP_ADMIN_PASSWORD}"
+  echo "Sitename: ${TYPO3_INSTALL_SITE_NAME}"
+  echo "Setup-Type: ${TYPO3_INSTALL_SITE_SETUP_TYPE}"
+  echo "DB-Username: ${TYPO3_INSTALL_DB_USERNAME}"
+  echo "DB-Port: ${TYPO3_INSTALL_DB_PORT}"
+  echo "DB-Password: ${TYPO3_INSTALL_DB_PASSWORD}"
+  echo "DB-Host: ${TYPO3_INSTALL_DB_HOST}"
+  echo "DB-Name: ${TYPO3_INSTALL_DB_DBNAME}"
+
   cp "${PLATFORM_APP_DIR}/config/system/settings.FromSource.php" "${PLATFORM_APP_DIR}/${varPath}/settings.php"
   # On first install, create an initial admin user with a default password.
   # *CHANGE THIS VALUE IMMEDIATELY AFTER INSTALLATION*

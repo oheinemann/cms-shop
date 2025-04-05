@@ -17,16 +17,6 @@ fi
 
 # There is no way to tell during the build stage if the CMS is already installed, so we'll run the command and then
 # determine during the deploy stage whether or not we've installed it already
-echo "Username: ${TYPO3_INSTALL_SETUP_ADMIN_USERNAME}"
-echo "Password: ${TYPO3_INSTALL_SETUP_ADMIN_PASSWORD}"
-echo "Sitename: ${TYPO3_INSTALL_SITE_NAME}"
-echo "Setup-Type: ${TYPO3_INSTALL_SITE_SETUP_TYPE}"
-echo "DB-Username: ${TYPO3_INSTALL_DB_USERNAME}"
-echo "DB-Port: ${TYPO3_INSTALL_DB_PORT}"
-echo "DB-Password: ${TYPO3_INSTALL_DB_PASSWORD}"
-echo "DB-Host: ${TYPO3_INSTALL_DB_HOST}"
-echo "DB-Name: ${TYPO3_INSTALL_DB_DBNAME}"
-
 composer exec typo3 install:setup -- --install-steps-config=install/SetupConfiguration.yaml --no-interaction --skip-extension-setup
 
 # Enable the install tool. Will allow access for 60mins after deployment.
