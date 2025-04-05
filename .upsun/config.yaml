@@ -1,15 +1,13 @@
 applications:
+
     # TYPO3 CMS Configuration
     cms:
         type: php:8.3
-
         source:
             root: cms
-
         runtime:
             extensions:
                 - redis
-
         relationships:
             database:
                 service: db
@@ -18,10 +16,9 @@ applications:
                 service: cache
                 endpoint: redis
             redis-session: session:redis
-        #        shop:
-        #            service: "shop"
-        #            endpoint: "http"
-
+            shop:
+                service: "shop"
+                endpoint: "http"
         mounts:
             "/public/typo3temp":
                 source: local
@@ -32,7 +29,6 @@ applications:
             "/var":
                 source: local
                 source_path: "var"
-
         web:
             locations:
                 "/":
@@ -102,7 +98,6 @@ applications:
                     passthru: "/typo3/index.php"
                     allow: true
                     scripts: true
-
         variables:
             php:
                 max_execution_time: "240"
@@ -116,7 +111,6 @@ applications:
                 session.cookie_httponly: "on"
             env:
                 TYPO3_ENABLE_INSTALL_TOOL: "true"
-
         hooks:
             build: |
               # Exit hook immediately if a command exits with a non-zero status.
@@ -126,11 +120,11 @@ applications:
               # Exit hook immediately if a command exits with a non-zero status.
               set -e
               bash ./.upsun-scripts/deploy.sh
-
         crons:
             typo3:
                 spec: "*/1 * * * *"
                 cmd: "vendor/bin/typo3 scheduler:run"
+
 
     # Magento2 Shop Configuration
     shop:
@@ -143,9 +137,7 @@ applications:
                 - sodium
                 - redis
                 - blackfire
-
         container_profile: BALANCED
-
         variables:
             env:
                 NVM_VERSION: master
@@ -287,6 +279,7 @@ applications:
                             passthru: "/static/$resource"
         source:
             root: /shop/
+
 services:
     db:
         type: mariadb:10.6
@@ -295,13 +288,13 @@ services:
                 optimizer_switch: "rowid_filter=off"
                 optimizer_use_condition_selectivity: 1
             schemas:
-                - main
+                - cms
                 - shop
             endpoints:
                 cms:
-                    default_schema: main
+                    default_schema: cms
                     privileges:
-                        main: admin
+                        cms: admin
                 write:
                     default_schema: shop
                     privileges:
@@ -310,17 +303,14 @@ services:
                     default_schema: shop
                     privileges:
                         shop: ro
-
     cache:
         type: redis:7.2
         configuration:
             maxmemory_policy: allkeys-lru
-
     session:
         type: redis-persistent:7.2
         configuration:
             maxmemory_policy: allkeys-lru
-
     indexer:
         type: opensearch:2
         configuration:
@@ -329,6 +319,7 @@ services:
                 - analysis-icu
     queue:
         type: rabbitmq:3.13
+
 routes:
     "https://{default}/":
         type: upstream

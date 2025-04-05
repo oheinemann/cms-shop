@@ -12,6 +12,7 @@ database:
     version: "10.6"
 upload_dirs:
     - shop/media
+    - cms/public/fileadmin
 use_dns_when_possible: true
 composer_version: "2"
 disable_settings_management: true
@@ -47,3 +48,6 @@ hooks:
 
         # Install MAGENTO2 packages
         - composer: install -d $PATH_SHOP
+
+        # Install TYPO3 packages
+        - composer: install -d $PATH_CMS

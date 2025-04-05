@@ -1,2 +1,5 @@
 export MAGENTO_CLOUD_LOCKS_DIR=$PLATFORM_LOCKS_DIR
 export DOMAIN_SHOP="$(echo $PLATFORM_ROUTES | base64 --decode | jq -r 'to_entries[] | select (.value.id == "shop") | .key')"
+
+export CONFIG__DEFAULT__WEB__SECURE__BASE_URL="$(echo $PLATFORM_ROUTES | base64 --decode | jq -r 'to_entries[] | select (.value.id == "shop") | .key')"
+export CONFIG__DEFAULT__WEB__UNSECURE__BASE_URL="$(echo $PLATFORM_ROUTES | base64 --decode | jq -r 'to_entries[] | select (.value.id == "shop") | .key' | sed 's/^https:/http:/')"
