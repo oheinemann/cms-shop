@@ -35,7 +35,7 @@ if [[ ! -f "${pshInstalled}" ]]; then
   # On first install, create an initial admin user with a default password.
   # *CHANGE THIS VALUE IMMEDIATELY AFTER INSTALLATION*
   composer exec typo3 install:setup -- \
-      --install-steps-config=src/SetupDatabase.yaml \
+      --install-steps-config=install/SetupDatabase.yaml \
       --site-setup-type=no \
       --site-name="TOI TOI DIXI" \
       --admin-user-name=admin \
